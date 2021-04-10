@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export START END
+
+cat <<EOF
+BEGIN:VCALENDAR
+PRODID:-//Ximian//NONSGML Evolution Calendar//EN
+VERSION:2.0
+EOF
+
+while IFS=/ read START END
+do
+    envsubst < vevent.ics.template
+done \
+    < <( cat freebusy.ics \
+    | grep -E '^FREEBUSY' \
+    | awk -F: '{print $2}' )
+
+cat <<EOF
+END:VCALENDAR
+EOF
