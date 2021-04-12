@@ -3,13 +3,13 @@
 
 int main(int argc, const char* argv[])
 {
-	PaperSize paperSize = AMERICAN_LETTER;
+	PaperSizeSpecification paperSize = getPaperSizeSpecification(AMERICAN_LETTER, LANDSCAPE);
 
 	cairo_surface_t* surface = 
 		cairo_pdf_surface_create(
 			"/tmp/freebusy.pdf", 
-			paperSizeSpecifications[paperSize].width_in_points,
-			paperSizeSpecifications[paperSize].height_in_points
+			paperSize.width_in_points,
+			paperSize.height_in_points
 		);
 
 	cairo_t *cr = cairo_create(surface);
