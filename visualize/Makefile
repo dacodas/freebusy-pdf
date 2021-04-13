@@ -10,7 +10,7 @@ C_FLAGS = -g
 CXX_FLAGS = -g
 
 build/freebusy: $(C_OBJECTS) $(CXX_OBJECTS)
-	g++ $(CXX_FLAGS) -Isrc -o $@ $^ -lcairo
+	g++ $(CXX_FLAGS) -Isrc -o $@ $^ -lcairo -lical
 
 build/c/%.o: src/%.cpp
 	g++ $(CXX_FLAGS) -Isrc -o $@ -c $<
