@@ -12,5 +12,6 @@ void draw_hours(
 
 void draw_days_text(
 	cairo_t* cr,
-	const DaysContext* daysContext
+	const DaysContext* daysContext,
+	const struct tm* startDate
 );

@@ -65,14 +65,10 @@ void draw_day(
 
 void draw_days_text(
 	cairo_t* cr,
-	const DaysContext* daysContext
+	const DaysContext* daysContext,
+	const struct tm* startDate
 ) {
-	struct tm datetime = {
-		.tm_mday = 11, 
-		.tm_mon = 3, 
-		.tm_year = 121
-	};
-
+	struct tm datetime = *startDate;
 	mktime(&datetime);
 
 	double deltaHorizontalPosition = 

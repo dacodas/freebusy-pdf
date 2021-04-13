@@ -1,15 +1,22 @@
 #pragma once
 
 #include <cairo/cairo.h>
+
 #include <specification.h>
 
+
+#ifdef __cplusplus
 extern "C" {
-void draw_days(
+#endif
+void draw_busy(
 	cairo_t* cr,
 	const CalendarDayMargins* margins,
 	const PaperSizeSpecification* paperSize,
-	const StrokeContexts* strokeContexts,
 	const HoursContext* hoursContext,
-	const struct tm* startDate
+	const struct tm* startDate,
+	const Busy* busy,
+	size_t busyLength
 );
+#ifdef __cplusplus
 }
+#endif

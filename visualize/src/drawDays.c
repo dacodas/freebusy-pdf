@@ -1,8 +1,10 @@
 #include <stddef.h>
+#include <time.h>
 
 #include <cairo/cairo.h>
 
 #include <specification.h>
+#include <measurements.h>
 #include <text.h>
 
 void enact_stroke_context(cairo_t* cr, const StrokeContext* context) {
@@ -22,15 +24,12 @@ void draw_days_bounding_box(cairo_t* cr, const DaysContext* context) {
 	cairo_stroke(cr);
 }
 
-void draw_days_separators(cairo_t* cr, const DaysContext* context) {
-	double deltaHorizontalPosition = 
-		( context->endingHorizontalPosition - context->startingHorizontalPosition ) / 7.0d;
-
+void draw_days_separators(cairo_t* cr, const DaysContext* context, const SeparatorsContext* separatorsContext) {
 	for ( size_t day = 1 ; day < 7; ++day )
 	{
 		double horizontalPosition = 
 			context->startingHorizontalPosition 
-				+ ((double) day) * deltaHorizontalPosition;
+				+ ((double) day) * separatorsContext->deltaHorizontalPosition;
 
 		cairo_move_to(cr, horizontalPosition, context->startingVerticalPosition);
 		cairo_line_to(
@@ -110,57 +109,35 @@ void draw_days_quarter_hour_separators(
 	draw_days_hour_separators_bulk(cr, daysContext, hoursContext, separatorsContext, secondStartingPosition);
 }
 
-SeparatorsContext draw_days_hour_separators_prelude(
-	const DaysContext* daysContext,
-	const HoursContext* hoursContext
-) {
-	uint8_t numberOfHours = 
-		hoursContext->endingHour - hoursContext->startingHour;
-
-	double deltaVerticalPosition = 
-		( daysContext->endingVerticalPosition - daysContext->startingVerticalPosition ) / ((double) numberOfHours);
-
-	return (SeparatorsContext) {numberOfHours, deltaVerticalPosition};
-}
-
 void draw_days(
 	cairo_t* cr,
 	const CalendarDayMargins* margins,
 	const PaperSizeSpecification* paperSize,
-	const StrokeContexts* strokeContexts
+	const StrokeContexts* strokeContexts,
+	const HoursContext* hoursContext,
+	const struct tm* startDate
 ) {
-	double startingHorizontalPosition = margins->leftMargin;
-	double endingHorizontalPosition = paperSize->width_in_points - margins->rightMargin;
-	double startingVerticalPosition = margins->topMargin;
-	double endingVerticalPosition = paperSize->height_in_points - margins->bottomMargin;
+	DaysContext daysContext; 
+	SeparatorsContext separatorsContext;
 
-	DaysContext daysContext = {
-		startingHorizontalPosition,
-		endingHorizontalPosition,
-		startingVerticalPosition,
-		endingVerticalPosition
-	};
-
-	HoursContext hoursContext = {
-		8, 17
-	};
+	calculateMeasurements(
+		&daysContext,
+		&separatorsContext,
+		margins,
+		paperSize,
+		hoursContext
+	);
 
 	// Set strokes here...
 	enact_stroke_context(cr, *strokeContexts + DAY_STROKE_CONTEXT);
 	draw_days_bounding_box(cr, &daysContext);
-	draw_days_separators(cr, &daysContext);
-
-	SeparatorsContext separatorsContext = 
-		draw_days_hour_separators_prelude(
-			&daysContext,
-			&hoursContext
-		);
+	draw_days_separators(cr, &daysContext, &separatorsContext);
 
 	enact_stroke_context(cr, *strokeContexts + HOUR_STROKE_CONTEXT);
 	draw_days_hour_separators(
 		cr, 
 		&daysContext, 
-		&hoursContext,
+		hoursContext,
 		&separatorsContext
 	);
 
@@ -168,7 +145,7 @@ void draw_days(
 	draw_days_half_hour_separators(
 		cr, 
 		&daysContext, 
-		&hoursContext,
+		hoursContext,
 		&separatorsContext
 	);
 
@@ -176,19 +153,20 @@ void draw_days(
 	draw_days_quarter_hour_separators(
 		cr, 
 		&daysContext, 
-		&hoursContext,
+		hoursContext,
 		&separatorsContext
 	);
 
 	draw_hours(
 		cr,
 		&daysContext, 
-		&hoursContext,
+		hoursContext,
 		&separatorsContext
 	);
 
 	draw_days_text(
 		cr,
-		&daysContext
+		&daysContext,
+		startDate
 	);
 }

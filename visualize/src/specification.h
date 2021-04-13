@@ -1,10 +1,13 @@
 #pragma once
 
 #include <stdint.h>
+#include <time.h>
+
 #include <cairo/cairo.h>
 
 typedef enum _PaperSize {
-	AMERICAN_LETTER = 0
+	AMERICAN_LETTER = 0,
+	NUMBER_OF_PAPER_SIZES = 1
 } PaperSize;
 
 typedef enum _Orientation {
@@ -32,24 +35,11 @@ typedef struct _CalendarDayMargins {
 	double bottomMargin;
 } CalendarDayMargins;
 
-typedef struct _DaysContext {
-	double startingHorizontalPosition;
-	double endingHorizontalPosition;
-	double startingVerticalPosition;
-	double endingVerticalPosition;
-} DaysContext;
-
 // 24-hour clock, please
 typedef struct _HoursContext {
 	uint8_t startingHour;
 	uint8_t endingHour;
 } HoursContext;
-
-// INTERNAL
-typedef struct _SeparatorsContext {
-	uint8_t numberOfHours;
-	double deltaVerticalPosition;
-} SeparatorsContext;
 
 typedef struct _CairoDashSimple {
 	double dashes[256];
@@ -70,14 +60,12 @@ typedef struct _StrokeContext {
 
 typedef StrokeContext StrokeContexts[NUMBER_OF_STROKE_CONTEXTS] ;
 
-// Is this a bad idea?
-typedef struct _Calendar {
-	PaperSizeSpecification paperSize;
-	StrokeContexts strokeContexts;
-	CalendarDayMargins calendarDayMargins;
-} Calendar;
+extern PaperSizeSpecification paperSizeSpecifications[NUMBER_OF_PAPER_SIZES]; 
 
-extern PaperSizeSpecification paperSizeSpecifications[10]; 
+typedef struct _Busy {
+	struct tm start;
+	struct tm end;
+} Busy;
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,3 +74,17 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+// INTERNAL
+typedef struct _DaysContext {
+	double startingHorizontalPosition;
+	double endingHorizontalPosition;
+	double startingVerticalPosition;
+	double endingVerticalPosition;
+} DaysContext;
+
+typedef struct _SeparatorsContext {
+	uint8_t numberOfHours;
+	double deltaVerticalPosition;
+	double deltaHorizontalPosition;
+} SeparatorsContext;

@@ -6,13 +6,16 @@ C_OBJECTS = $(patsubst src/%.c,build/c/%.o,$(C_SOURCES))
 CXX_SOURCES = $(shell find src -name '*.cpp')
 CXX_OBJECTS = $(patsubst src/%.cpp,build/c/%.o,$(CXX_SOURCES))
 
+C_FLAGS = -g
+CXX_FLAGS = -g
+
 build/freebusy: $(C_OBJECTS) $(CXX_OBJECTS)
-	g++ -Isrc -o $@ $^ -lcairo
+	g++ $(CXX_FLAGS) -Isrc -o $@ $^ -lcairo
 
 build/c/%.o: src/%.cpp
-	g++ -Isrc -o $@ -c $<
+	g++ $(CXX_FLAGS) -Isrc -o $@ -c $<
 
 build/c/%.o: src/%.c
-	gcc -Isrc -o $@ -c $<
+	gcc $(C_FLAGS) -Isrc -o $@ -c $<
 
 build/c/main.o: src/strokeHelper.c.in

@@ -1,6 +1,6 @@
 #include <specification.h>
 
-PaperSizeSpecification paperSizeSpecifications[10] = {
+PaperSizeSpecification paperSizeSpecifications[NUMBER_OF_PAPER_SIZES] = {
 	[AMERICAN_LETTER] = 
 		{
 			8.5d * 72.0d,
