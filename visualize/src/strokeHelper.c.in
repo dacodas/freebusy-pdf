@@ -1,0 +1,22 @@
+#include <math.h>
+#include <stddef.h>
+#include <specification.h>
+
+int sizeOfDashes(const double* dashes) {
+	size_t index = 0;
+
+	while ( !isnan(dashes[index++]) ) {}
+
+	return --index;
+}
+
+void fixStrokeContexts() {
+	for ( size_t index = 0 ; index < NUMBER_OF_STROKE_CONTEXTS ; ++index )
+	{
+		strokeContexts[index].cairoDash = {
+			dashes[index].dashes,
+			sizeOfDashes(dashes[index].dashes),
+			dashes[index].offset
+		};
+	}
+}
