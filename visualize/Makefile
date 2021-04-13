@@ -15,4 +15,4 @@ build/c/%.o: src/%.cpp
 build/c/%.o: src/%.c
 	gcc -Isrc -o $@ -c $<
 
-build/c/main.o: src/margins.cpp.in src/strokeHelper.c.in
+build/c/main.o: src/strokeHelper.c.in

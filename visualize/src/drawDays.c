@@ -1,4 +1,9 @@
-#include <cstddef>
+#include <stddef.h>
+
+#include <cairo/cairo.h>
+
+#include <specification.h>
+#include <text.h>
 
 void enact_stroke_context(cairo_t* cr, const StrokeContext* context) {
 	cairo_set_line_width(cr, context->lineWidth);
@@ -115,7 +120,7 @@ SeparatorsContext draw_days_hour_separators_prelude(
 	double deltaVerticalPosition = 
 		( daysContext->endingVerticalPosition - daysContext->startingVerticalPosition ) / ((double) numberOfHours);
 
-	return {numberOfHours, deltaVerticalPosition};
+	return (SeparatorsContext) {numberOfHours, deltaVerticalPosition};
 }
 
 void draw_days(
@@ -173,5 +178,17 @@ void draw_days(
 		&daysContext, 
 		&hoursContext,
 		&separatorsContext
+	);
+
+	draw_hours(
+		cr,
+		&daysContext, 
+		&hoursContext,
+		&separatorsContext
+	);
+
+	draw_days_text(
+		cr,
+		&daysContext
 	);
 }

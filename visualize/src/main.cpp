@@ -2,9 +2,12 @@
 
 #include <specification.h>
 #include <settings.h>
+#include <drawDays.h>
 
 #include <strokeHelper.c.in>
-#include <margins.cpp.in>
+
+const char* globalFont = "sans-serif";
+const char* title = "April 11 to April 17, 2021";
 
 int main(int argc, const char* argv[])
 {
@@ -22,11 +25,12 @@ int main(int argc, const char* argv[])
 
 	cairo_t *cr = cairo_create(surface);
 
-	cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_select_font_face(cr, globalFont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(cr, 24.0);
 	cairo_move_to(cr, 10.0, 50.0);
-	cairo_show_text(cr, "April 11 to April 17, 2021");
+	cairo_show_text(cr, title);
 
+	cairo_set_font_size(cr, 12.0);
 	draw_days(cr, &calendarDayMargins, &paperSize, &strokeContexts);
 
 	cairo_surface_finish(surface);
