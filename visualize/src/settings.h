@@ -9,4 +9,3 @@ extern StrokeContexts strokeContexts;
 extern const struct tm startDate;
 extern const HoursContext hoursContext;
 extern const char* globalFont;
-extern const Busy busy[17];

@@ -1,11 +1,17 @@
 #include <cairo/cairo-pdf.h>
 
+#include <libical/ical.h>
+#include <libical/icalparser.h>
+#include <libical/icalproperty.h>
+
 #include <specification.h>
 #include <settings.h>
 #include <drawDays.h>
 #include <busy.h>
 
 #include <strokeHelper.c.in>
+
+#include <cstdio>
 
 // Excuse me? How to localize this?
 // - I would prefer to have a single string "%B %d to %B %d, %Y" which could be localized
@@ -23,6 +29,106 @@ void createTitle(char* title, size_t length)
 	strftime(title + offset, length - offset, ", %Y", &startDate);
 }
 
+void processFreeBusy(
+	cairo_t* cr,
+	BusyContext* busyContext,
+	icalproperty* property
+)
+{	
+	struct icalperiodtype period = icalproperty_get_freebusy(property);
+
+	// icaltimezone* timezone = icaltimezone_get_builtin_timezone("America/Los_Angeles");
+	// time_t time = icaltime_as_timet_with_zone(period.start, timezone);
+
+	time_t startTime = icaltime_as_timet(period.start);
+	time_t endTime = icaltime_as_timet(period.end);
+
+	Busy busy;
+
+	localtime_r(&startTime, &busy.start);
+	localtime_r(&endTime, &busy.end);
+
+	draw_single_busy_from_context(
+		cr,
+		busyContext,
+		&busy
+	);
+	
+	return;
+}
+
+void processVFreeBusy(
+	cairo_t* cr,
+	BusyContext* busyContext,
+	icalcomponent* component
+)
+{
+	icalproperty* property;
+
+	for (
+		property = 
+			icalcomponent_get_first_property(component, ICAL_FREEBUSY_PROPERTY);
+		property != 0;
+		property = 
+			icalcomponent_get_next_property(component, ICAL_FREEBUSY_PROPERTY)
+	)
+	{
+		processFreeBusy(cr, busyContext, property);
+	}
+}
+
+void processVCalendar(
+	cairo_t* cr,
+	BusyContext* busyContext,
+	icalcomponent* component
+)
+{
+	icalcomponent* subcomponent;
+
+	for (
+		subcomponent = 
+			icalcomponent_get_first_component(component, ICAL_VFREEBUSY_COMPONENT);
+		subcomponent != 0;
+		subcomponent = 
+			icalcomponent_get_next_component(component, ICAL_VFREEBUSY_COMPONENT)
+	)
+	{
+		processVFreeBusy(cr, busyContext, subcomponent);
+	}
+}
+
+char* readFreeBusyStream(char *s, size_t size, void *d)
+{
+    return fgets(s, size, (FILE*) d);
+}
+
+void readFreeBusy(
+	cairo_t* cr,
+	BusyContext* busyContext,
+	const char* filename
+)
+{
+	char *line;
+	icalcomponent *component;
+	icalparser *parser = icalparser_new();
+
+	FILE* stream = fopen(filename, "r");
+
+	icalparser_set_gen_data(parser, stream);
+
+	do {
+		line = icalparser_get_line(parser, readFreeBusyStream);
+		component = icalparser_add_line(parser, line);
+
+		if (component != 0) {
+			processVCalendar(cr, busyContext, component);
+			icalparser_clean(parser);
+
+			icalcomponent_free(component);
+		}
+	} while (line != 0);
+}
+
 int main(int argc, const char* argv[])
 {
 	PaperSizeSpecification paperSize = 
@@ -32,7 +138,7 @@ int main(int argc, const char* argv[])
 
 	cairo_surface_t* surface = 
 		cairo_pdf_surface_create(
-			"/tmp/freebusy.pdf", 
+			"../build/freebusy.pdf", 
 			paperSize.width_in_points,
 			paperSize.height_in_points
 		);
@@ -48,16 +154,25 @@ int main(int argc, const char* argv[])
 	cairo_show_text(cr, title);
 
 	cairo_set_font_size(cr, 12.0);
-	draw_days(cr, &calendarDayMargins, &paperSize, &strokeContexts, &hoursContext, &startDate);
-	draw_busy(
+	draw_days(
 		cr,
 		&calendarDayMargins,
 		&paperSize,
+		&strokeContexts,
 		&hoursContext,
-		&startDate,
-		busy,
-		sizeof(busy) / sizeof(Busy)
+		&startDate
 	);
+		
+	BusyContext* busyContext = get_draw_busy_context(
+		&calendarDayMargins,
+		&paperSize,
+		&hoursContext,
+		&startDate
+	);
+
+	// TODO: Take these from arguments instead
+	readFreeBusy(cr, busyContext, "../build/freebusy-5bbc952a-e4c2-1618096321256-374021.ics");
+	readFreeBusy(cr, busyContext, "../build/freebusy-Default.ics");
 
 	cairo_surface_finish(surface);
 	cairo_surface_flush(surface);
