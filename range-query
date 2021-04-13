@@ -1,0 +1,45 @@
+#!/bin/bash
+
+when() {
+	local _WHEN="$1"
+
+	date -u -d @$( date -d "$_WHEN" +%s ) +%Y%m%dT%H%M%SZ
+}
+
+freebusy() {
+	local _START="$1"
+	local _END="$2"
+	local _PATH="$3"
+
+	curl -k \
+		-u "$CALDAV_USER:$CALDAV_PASS" \
+		-X REPORT \
+		-H "Content-type: application/xml" \
+		--data-binary @- \
+		$CALDAV_BASE_URL/$_PATH \
+		<<EOF > build/freebusy-$_PATH.ics
+<?xml version="1.0" encoding="utf-8" ?>
+<C:free-busy-query xmlns:C="urn:ietf:params:xml:ns:caldav">
+  <C:time-range start="$( when "$_START" )"
+                  end="$( when "$_END" )"/>
+</C:free-busy-query>
+EOF
+}
+
+: ${CALDAV_BASE_URL?You need to set this}
+: ${CALDAV_USER?You need to set this}
+: ${CALDAV_PASS?You need to set this}
+
+START="$1"
+END="$2"
+shift 2
+
+for CALENDAR in "$@"
+do
+	freebusy "$START" "$END" $CALENDAR
+done
+
+(
+	pushd visualize ;
+	./build/freebusy ;
+)
