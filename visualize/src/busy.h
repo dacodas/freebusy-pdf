@@ -21,6 +21,12 @@ void draw_single_busy_from_context(
 	BusyContext* context,
 	const Busy* busy
 );
+
+void readFreeBusy(
+	cairo_t* cr,
+	BusyContext* busyContext,
+	const char* filename
+);
 #ifdef __cplusplus
 }
 #endif

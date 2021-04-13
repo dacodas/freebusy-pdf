@@ -1,9 +1,5 @@
 #include <cairo/cairo-pdf.h>
 
-#include <libical/ical.h>
-#include <libical/icalparser.h>
-#include <libical/icalproperty.h>
-
 #include <specification.h>
 #include <settings.h>
 #include <drawDays.h>
@@ -27,106 +23,6 @@ void createTitle(char* title, size_t length)
 	size_t offset = strftime(title, length, "%B %d to ", &startDate);
 	offset += strftime(title + offset, length - offset, "%B %d", &endDate);
 	strftime(title + offset, length - offset, ", %Y", &startDate);
-}
-
-void processFreeBusy(
-	cairo_t* cr,
-	BusyContext* busyContext,
-	icalproperty* property
-)
-{	
-	struct icalperiodtype period = icalproperty_get_freebusy(property);
-
-	// icaltimezone* timezone = icaltimezone_get_builtin_timezone("America/Los_Angeles");
-	// time_t time = icaltime_as_timet_with_zone(period.start, timezone);
-
-	time_t startTime = icaltime_as_timet(period.start);
-	time_t endTime = icaltime_as_timet(period.end);
-
-	Busy busy;
-
-	localtime_r(&startTime, &busy.start);
-	localtime_r(&endTime, &busy.end);
-
-	draw_single_busy_from_context(
-		cr,
-		busyContext,
-		&busy
-	);
-	
-	return;
-}
-
-void processVFreeBusy(
-	cairo_t* cr,
-	BusyContext* busyContext,
-	icalcomponent* component
-)
-{
-	icalproperty* property;
-
-	for (
-		property = 
-			icalcomponent_get_first_property(component, ICAL_FREEBUSY_PROPERTY);
-		property != 0;
-		property = 
-			icalcomponent_get_next_property(component, ICAL_FREEBUSY_PROPERTY)
-	)
-	{
-		processFreeBusy(cr, busyContext, property);
-	}
-}
-
-void processVCalendar(
-	cairo_t* cr,
-	BusyContext* busyContext,
-	icalcomponent* component
-)
-{
-	icalcomponent* subcomponent;
-
-	for (
-		subcomponent = 
-			icalcomponent_get_first_component(component, ICAL_VFREEBUSY_COMPONENT);
-		subcomponent != 0;
-		subcomponent = 
-			icalcomponent_get_next_component(component, ICAL_VFREEBUSY_COMPONENT)
-	)
-	{
-		processVFreeBusy(cr, busyContext, subcomponent);
-	}
-}
-
-char* readFreeBusyStream(char *s, size_t size, void *d)
-{
-    return fgets(s, size, (FILE*) d);
-}
-
-void readFreeBusy(
-	cairo_t* cr,
-	BusyContext* busyContext,
-	const char* filename
-)
-{
-	char *line;
-	icalcomponent *component;
-	icalparser *parser = icalparser_new();
-
-	FILE* stream = fopen(filename, "r");
-
-	icalparser_set_gen_data(parser, stream);
-
-	do {
-		line = icalparser_get_line(parser, readFreeBusyStream);
-		component = icalparser_add_line(parser, line);
-
-		if (component != 0) {
-			processVCalendar(cr, busyContext, component);
-			icalparser_clean(parser);
-
-			icalcomponent_free(component);
-		}
-	} while (line != 0);
 }
 
 int main(int argc, const char* argv[])
