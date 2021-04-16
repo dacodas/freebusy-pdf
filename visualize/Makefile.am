@@ -1,5 +1,7 @@
 bin_PROGRAMS = freebusy
 
+LDADD = gnulib/libgnu.a
+
 ACLOCAL_AMFLAGS = -I gnulib/m4
 
 SUBDIRS = gnulib
