@@ -1,5 +1,8 @@
 #include <cairo/cairo-pdf.h>
 
+#include <gnulib/time.h>
+#include <gnulib/parse-datetime.h>
+
 #include <specification.h>
 #include <settings.h>
 #include <drawDays.h>
