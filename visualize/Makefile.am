@@ -1,8 +1,8 @@
 bin_PROGRAMS = freebusy
 
-ACLOCAL_AMFLAGS = -I gl/m4
+ACLOCAL_AMFLAGS = -I gnulib/m4
 
-SUBDIRS = gl
+SUBDIRS = gnulib
 
 freebusy_SOURCES = src/busy.c src/text.c src/measurements.h src/strokeHelper.c.in src/measurements.c src/drawDays.h src/drawDays.c src/text.h src/specification.h src/settings.c src/main.c src/settings.h src/specification.c src/busy.h
 
