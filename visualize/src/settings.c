@@ -19,13 +19,7 @@ StrokeContexts strokeContexts = {
 	[QUARTER_HOUR_STROKE_CONTEXT] = { 0.25, CAIRO_LINE_CAP_BUTT, {} },
 };
 
-const struct tm startDate = {
-	.tm_year = 121,
-	.tm_mon = 3,
-	// .tm_mday = 11,
-	.tm_mday = 18,
-	.tm_isdst = -1
-};
+struct tm startDate = {};
 
 const HoursContext hoursContext = {
 	8, 18

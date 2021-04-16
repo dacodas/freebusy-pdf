@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <cairo/cairo-pdf.h>
 
@@ -11,7 +12,6 @@
 #include <busy.h>
 
 #include <strokeHelper.c.in>
-
 
 // Excuse me? How to localize this?
 // - I would prefer to have a single string "%B %d to %B %d, %Y" which could be localized
@@ -29,8 +29,36 @@ void createTitle(char* title, size_t length)
 	strftime(title + offset, length - offset, ", %Y", &startDate);
 }
 
+void set_start_date(const char* date)
+{
+	struct timespec when;
+
+	unsigned int parse_datetime_flags = 0;
+	const char* timezone_string = NULL;
+
+	timezone_t timezone = tzalloc(timezone_string);
+
+	if ( ! parse_datetime2(
+			&when,
+			date,
+			NULL,
+			parse_datetime_flags,
+			timezone,
+			timezone_string ) )
+	{
+		fprintf(stderr, "Invalid date '%s'\n", date);
+		exit(1);
+	}
+
+	localtime_r(&when.tv_sec, &startDate);
+
+	return;
+}
+
 int main(int argc, const char* argv[])
 {
+	set_start_date(argv[1]);
+
 	PaperSizeSpecification paperSize = 
 		getPaperSizeSpecification(AMERICAN_LETTER, LANDSCAPE);
 

@@ -41,5 +41,5 @@ done
 
 (
 	pushd visualize ;
-	./build/freebusy ;
+	./freebusy "$START" ;
 )
