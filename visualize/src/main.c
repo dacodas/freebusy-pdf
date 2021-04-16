@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <cairo/cairo-pdf.h>
 
 #include <gnulib/time.h>
@@ -10,7 +12,6 @@
 
 #include <strokeHelper.c.in>
 
-#include <cstdio>
 
 // Excuse me? How to localize this?
 // - I would prefer to have a single string "%B %d to %B %d, %Y" which could be localized
