@@ -9,13 +9,15 @@ CXX_OBJECTS = $(patsubst src/%.cpp,build/c/%.o,$(CXX_SOURCES))
 C_FLAGS = -g
 CXX_FLAGS = -g
 
+INCLUDES = -Isrc
+
 build/freebusy: $(C_OBJECTS) $(CXX_OBJECTS)
-	g++ $(CXX_FLAGS) -Isrc -o $@ $^ -lcairo -lical
+	g++ $(CXX_FLAGS) $(INCLUDES) -o $@ $^ -lcairo -lical
 
 build/c/%.o: src/%.cpp
-	g++ $(CXX_FLAGS) -Isrc -o $@ -c $<
+	g++ $(CXX_FLAGS) $(INCLUDES) -o $@ -c $<
 
 build/c/%.o: src/%.c
-	gcc $(C_FLAGS) -Isrc -o $@ -c $<
+	gcc $(C_FLAGS) $(INCLUDES) -o $@ -c $<
 
 build/c/main.o: src/strokeHelper.c.in
