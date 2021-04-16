@@ -13,7 +13,7 @@ int sizeOfDashes(const double* dashes) {
 void fixStrokeContexts() {
 	for ( size_t index = 0 ; index < NUMBER_OF_STROKE_CONTEXTS ; ++index )
 	{
-		strokeContexts[index].cairoDash = {
+		strokeContexts[index].cairoDash = (CairoDash) {
 			dashes[index].dashes,
 			sizeOfDashes(dashes[index].dashes),
 			dashes[index].offset
