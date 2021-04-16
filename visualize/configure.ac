@@ -1,6 +1,8 @@
 AC_INIT([freebusy], [0.0.1], [dacoda.strack@gmail.com], [https://dacodastrack.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 
+AC_USE_SYSTEM_EXTENSIONS([_GNU_SOURCE])
+
 AC_CONFIG_FILES([gnulib/Makefile])
 AC_CONFIG_HEADERS([config.h])
 
