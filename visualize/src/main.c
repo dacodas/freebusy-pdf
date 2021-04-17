@@ -3,8 +3,11 @@
 
 #include <getopt.h>
 
+#include <config.h>
+
 #include <cairo/cairo-pdf.h>
 
+#include <time.h>
 #include <gnulib/time.h>
 #include <gnulib/parse-datetime.h>
 
