@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <time.h>
+#include <limits.h>
 
 #include <cairo/cairo.h>
 
@@ -35,10 +36,13 @@ typedef struct _CalendarDayMargins {
 	double bottomMargin;
 } CalendarDayMargins;
 
+// CHAR_BIT is guaranteed to be >= 8 by the standard
+typedef unsigned char FreeBusyHour;
+
 // 24-hour clock, please
 typedef struct _HoursContext {
-	uint8_t startingHour;
-	uint8_t endingHour;
+	FreeBusyHour startingHour;
+	FreeBusyHour endingHour;
 } HoursContext;
 
 typedef struct _CairoDashSimple {

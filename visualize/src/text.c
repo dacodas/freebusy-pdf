@@ -29,14 +29,14 @@ void draw_hours(
 	const HoursContext* hoursContext,
 	const SeparatorsContext* separatorsContext
 ) {
-	for ( size_t hour = hoursContext->startingHour ; hour <= hoursContext->endingHour ; ++hour )
+	for ( FreeBusyHour hour = hoursContext->startingHour ; hour <= hoursContext->endingHour ; ++hour )
 	{
 		double verticalPosition =
 			daysContext->startingVerticalPosition 
 				+ ((double) hour - hoursContext->startingHour) * separatorsContext->deltaVerticalPosition;
 
 		char hourString[128];
-		snprintf(hourString, sizeof(hourString), "%d:00", hour);
+		snprintf(hourString, sizeof(hourString), "%u:00", hour);
 		draw_hour(
 			cr, 
 			hourString,
