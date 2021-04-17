@@ -49,7 +49,6 @@ void draw_days_separators(cairo_t* cr, const DaysContext* context, const Separat
 void draw_days_hour_separators_bulk(
 	cairo_t* cr,
 	const DaysContext* daysContext,
-	const HoursContext* hoursContext,
 	const SeparatorsContext* separatorsContext,
 	double startingVerticalPosition
 ) {
@@ -73,22 +72,24 @@ void draw_days_hour_separators_bulk(
 void draw_days_hour_separators(
 	cairo_t* cr,
 	const DaysContext* daysContext,
-	const HoursContext* hoursContext,
-	const SeparatorsContext* separatorsContext
-) {
-	draw_days_hour_separators_bulk(cr, daysContext, hoursContext, separatorsContext, daysContext->startingVerticalPosition);
-}
-
-void draw_days_half_hour_separators(
-	cairo_t* cr,
-	const DaysContext* daysContext,
-	const HoursContext* hoursContext,
 	const SeparatorsContext* separatorsContext
 ) {
 	draw_days_hour_separators_bulk(
 		cr,
 		daysContext,
-		hoursContext,
+		separatorsContext,
+		daysContext->startingVerticalPosition
+	);
+}
+
+void draw_days_half_hour_separators(
+	cairo_t* cr,
+	const DaysContext* daysContext,
+	const SeparatorsContext* separatorsContext
+) {
+	draw_days_hour_separators_bulk(
+		cr,
+		daysContext,
 		separatorsContext,
 		daysContext->startingVerticalPosition + separatorsContext->deltaVerticalPosition / 2.0d
 	);
@@ -97,7 +98,6 @@ void draw_days_half_hour_separators(
 void draw_days_quarter_hour_separators(
 	cairo_t* cr,
 	const DaysContext* daysContext,
-	const HoursContext* hoursContext,
 	const SeparatorsContext* separatorsContext
 ) {
 	double firstStartingPosition = 
@@ -105,8 +105,19 @@ void draw_days_quarter_hour_separators(
 	double secondStartingPosition = 
 		firstStartingPosition + separatorsContext->deltaVerticalPosition / 2.0d;
 
-	draw_days_hour_separators_bulk(cr, daysContext, hoursContext, separatorsContext, firstStartingPosition);
-	draw_days_hour_separators_bulk(cr, daysContext, hoursContext, separatorsContext, secondStartingPosition);
+	draw_days_hour_separators_bulk(
+		cr,
+		daysContext,
+		separatorsContext,
+		firstStartingPosition
+	);
+
+	draw_days_hour_separators_bulk(
+		cr,
+		daysContext,
+		separatorsContext,
+		secondStartingPosition
+	);
 }
 
 void draw_days(
@@ -137,7 +148,6 @@ void draw_days(
 	draw_days_hour_separators(
 		cr, 
 		&daysContext, 
-		hoursContext,
 		&separatorsContext
 	);
 
@@ -145,7 +155,6 @@ void draw_days(
 	draw_days_half_hour_separators(
 		cr, 
 		&daysContext, 
-		hoursContext,
 		&separatorsContext
 	);
 
@@ -153,7 +162,6 @@ void draw_days(
 	draw_days_quarter_hour_separators(
 		cr, 
 		&daysContext, 
-		hoursContext,
 		&separatorsContext
 	);
 
