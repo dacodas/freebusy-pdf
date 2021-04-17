@@ -94,7 +94,7 @@ int main(int argc, char* const argv[])
 			case '?':
 			{
 				char error[256];
-				snprintf(error, sizeof(error), "Unknown flag %s", getopt_return);
+				snprintf(error, sizeof(error), "Unknown flag %s", argv[this_option_optind]);
 				fprintf(stderr, "%s\n", error);
 				exit(1);
 			}
