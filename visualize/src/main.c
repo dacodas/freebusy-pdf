@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <getopt.h>
+
 #include <cairo/cairo-pdf.h>
 
 #include <gnulib/time.h>
@@ -29,6 +31,12 @@ void createTitle(char* title, size_t length)
 	strftime(title + offset, length - offset, ", %Y", &startDate);
 }
 
+static struct option long_options[] = {
+        {"output"              , required_argument, 0, 'o'},
+        {"ics-files-directory" , required_argument, 0, 'd'},
+        {0                     , 0                , 0,  0 },
+};
+
 void set_start_date(const char* date)
 {
 	struct timespec when;
@@ -55,18 +63,70 @@ void set_start_date(const char* date)
 	return;
 }
 
-int main(int argc, const char* argv[])
+int main(int argc, char* const argv[])
 {
-	set_start_date(argv[1]);
+	char
+		*output = (char*) NULL,
+		*ics_files_directory = (char*) NULL;
 
-	PaperSizeSpecification paperSize = 
+	{
+		int getopt_return = -1;
+
+		for (;;) {
+			int this_option_optind = optind ? optind : 1;
+			int option_index = 0;
+
+			getopt_return = getopt_long(argc, argv, "od:", long_options, &option_index);
+
+			if ( getopt_return == -1 ) break;
+
+			switch ( getopt_return )
+			{
+			case 'o':
+				output = optarg;
+				break;
+			case 'd':
+				ics_files_directory = optarg;
+				break;
+			case '?':
+			{
+				char error[256];
+				snprintf(error, sizeof(error), "Unknown flag %s", getopt_return);
+				fprintf(stderr, "%s\n", error);
+				exit(1);
+			}
+			}
+		}
+	}
+
+	if ( output == NULL )
+	{
+		fprintf(stderr, "Specify the output file\n");
+		exit(1);
+	}
+
+	if ( ics_files_directory == NULL )
+	{
+		fprintf(stderr, "Specify the directory containing the ICS files\n");
+		exit(1);
+	}
+
+	if ( optind == argc )
+	{
+		fprintf(stderr, "Specify the start date\n");
+		exit(1);
+	}
+
+	set_start_date(argv[optind++]);
+
+	PaperSizeSpecification paperSize =
 		getPaperSizeSpecification(AMERICAN_LETTER, LANDSCAPE);
 
 	fixStrokeContexts();
 
-	cairo_surface_t* surface = 
+	cairo_surface_t* surface =
 		cairo_pdf_surface_create(
-			"../build/freebusy.pdf", 
+			output,
 			paperSize.width_in_points,
 			paperSize.height_in_points
 		);
@@ -90,7 +150,7 @@ int main(int argc, const char* argv[])
 		&hoursContext,
 		&startDate
 	);
-		
+
 	BusyContext* busyContext = get_draw_busy_context(
 		&calendarDayMargins,
 		&paperSize,
@@ -98,9 +158,20 @@ int main(int argc, const char* argv[])
 		&startDate
 	);
 
-	// TODO: Take these from arguments instead
-	readFreeBusy(cr, busyContext, "../build/freebusy-5bbc952a-e4c2-1618096321256-374021.ics");
-	readFreeBusy(cr, busyContext, "../build/freebusy-Default.ics");
+	if ( optind == argc )
+	{
+		fprintf(stderr, "Specify the calendars you would like to show\n");
+		exit(1);
+	}
+
+	for ( ; optind < argc ; ++optind )
+	{
+		const char* calendar = argv[optind];
+		char freebusyFile[256];
+
+		snprintf(freebusyFile, sizeof(freebusyFile), "%s/freebusy-%s.ics", ics_files_directory, calendar);
+		readFreeBusy(cr, busyContext, freebusyFile);
+	}
 
 	cairo_surface_finish(surface);
 	cairo_surface_flush(surface);

@@ -30,16 +30,30 @@ EOF
 : ${CALDAV_USER?You need to set this}
 : ${CALDAV_PASS?You need to set this}
 
+if [ $# -lt 2 ]
+then
+	echo "Specify both the start and the end dates" >&2
+	echo "These will be parsed by 'date -d'" >&2
+	exit 1
+fi
+
 START="$1"
 END="$2"
 shift 2
+
+if [ $# -eq 0 ]
+then
+	echo "Specify the calendars you would like to show" >&1
+	exit 1
+fi
 
 for CALENDAR in "$@"
 do
 	freebusy "$START" "$END" $CALENDAR
 done
 
-(
-	pushd visualize ;
-	./freebusy "$START" ;
-)
+./visualize/freebusy \
+	--output $PWD/build/freebusy.pdf \
+	--ics-files-directory $PWD/build \
+	"$START" \
+	$CALENDARS
