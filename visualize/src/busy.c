@@ -1,3 +1,7 @@
+#include <config.h>
+
+#include <busy.h>
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,10 +12,7 @@
 #include <libical/icalparser.h>
 #include <libical/icalproperty.h>
 
-#include <specification.h>
 #include <measurements.h>
-
-#include <busy.h>
 
 struct _BusyContext {
 	DaysContext* daysContext;
@@ -96,6 +97,16 @@ incorrect_times:
 	return;
 }
 
+void* cheap_malloc(size_t size)
+{
+	void* allocatedMemory = malloc( size );
+
+	if ( allocatedMemory == NULL )
+		abort();
+
+	return allocatedMemory;
+}
+
 BusyContext* get_draw_busy_context(
 	const CalendarDayMargins* margins,
 	const PaperSizeSpecification* paperSize,
@@ -103,11 +114,11 @@ BusyContext* get_draw_busy_context(
 	const struct tm* startDate
 )
 {
-	struct tm* copiedStartDate = (struct tm*) malloc( sizeof(struct tm) ); 
-	HoursContext* copiedHoursContext = (HoursContext*) malloc( sizeof(HoursContext) ); 
-	DaysContext* daysContext = (DaysContext*) malloc( sizeof(DaysContext) ); 
-	SeparatorsContext* separatorsContext = (SeparatorsContext*) malloc( sizeof(SeparatorsContext) ); 
-	_BusyContext* busyContext  = (_BusyContext*) malloc( sizeof(_BusyContext) );
+	struct tm* copiedStartDate = (struct tm*) cheap_malloc( sizeof(struct tm) );
+	HoursContext* copiedHoursContext = (HoursContext*) cheap_malloc( sizeof(HoursContext) );
+	DaysContext* daysContext = (DaysContext*) cheap_malloc( sizeof(DaysContext) );
+	SeparatorsContext* separatorsContext = (SeparatorsContext*) cheap_malloc( sizeof(SeparatorsContext) );
+	_BusyContext* busyContext  = (_BusyContext*) cheap_malloc( sizeof(_BusyContext) );
 
 	calculateMeasurements(
 		daysContext,
