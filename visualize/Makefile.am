@@ -10,7 +10,7 @@ freebusy_SOURCES = src/busy.c src/text.c src/measurements.h src/strokeHelper.c.i
 
 freebusy_CPPFLAGS = -I${HOME}/projects/mailbox/freebusy/visualize/src
 
-freebusy_CFLAGS = -I${HOME}/projects/mailbox/freebusy/visualize/src
+freebusy_CFLAGS = -I${HOME}/projects/mailbox/freebusy/visualize/src -fanalyzer
 
 freebusy_LDFLAGS = -lcairo -lical
 
